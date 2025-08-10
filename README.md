@@ -48,8 +48,8 @@ MIT License © Dipak Pulami Magar
 
 ## 🖼️ Screenshot
 
-![](images/screenshot-1.jpg)
-![](images/screenshot-2.jpg)
+![](images/screenshot-1.png)
+![](images/screenshot-2.png)
 
 ---
 
