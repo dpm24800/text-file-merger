@@ -42,13 +42,14 @@ Quickly combine multiple text files without installing anything or uploading fil
 
 ## 📄 License
 
-MIT License © [Your Name]
+MIT License © Dipak Pulami Magar
 
 ---
 
 ## 🖼️ Screenshot
 
-*(Add your own screenshot here)*
+![](images/screenshot-1.jpg)
+![](images/screenshot-2.jpg)
 
 ---
 
@@ -58,3 +59,4 @@ MIT License © [Your Name]
 
    ```bash
    git clone https://github.com/yourusername/merge-text-files.git
+
