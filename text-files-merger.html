@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Merge Text Files</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+    <div class="top-bar">
+        <h1>Merge Text Files</h1>
+        <button class="theme-toggle" id="themeBtn" aria-label="Toggle light/dark theme">☀ Day Mode</button>
+    </div>
+
+    <label for="fileInput" class="file-label" title="Click to choose text files">
+        📂 Choose Files
+        <input type="file" id="fileInput" multiple accept=".txt,text/plain" />
+    </label>
+
+    <div id="dropArea" tabindex="0" aria-label="Drag and drop text files here or use the choose files button">
+        Drag & Drop files here or use the "Choose Files" button
+    </div>
+
+    <ul id="fileList" aria-live="polite" aria-relevant="additions removals"></ul>
+
+    <button class="btn" id="mergeBtn">Merge & Download</button>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
