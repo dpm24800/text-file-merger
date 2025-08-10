@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Merge Text Files</title>
+<style>
+  :root {
+    --bg-color: #121212;
+    --text-color: #ffffff;
+    --card-color: #1e1e1e;
+    --accent-color: #ff4d6d;
+    --accent-hover: #ff6e8c;
+  }
+  body.light {
+    --bg-color: #f4f4f4;
+    --text-color: #222;
+    --card-color: #ffffff;
+    --accent-color: #0078d7;
+    --accent-hover: #3399ff;
+  }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    max-width: 700px;
+    margin: auto;
+    transition: background 0.3s, color 0.3s;
+  }
+  h1 {
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* Sexy Choose Files Button with Icon */
+  .file-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 200px;
+    height: 50px;
+    background: var(--accent-color);
+    color: white;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    user-select: none;
+  }
+  .file-label:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+  .file-label input {
+    display: none;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: var(--card-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    overflow: hidden;
+    margin-top: 18px;
+  }
+  li {
+    padding: 12px 15px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  li:last-child {
+    border-bottom: none;
+  }
+  li:hover {
+    background: rgba(255,255,255,0.05);
+  }
+  li.dragging {
+    opacity: 0.5;
+  }
+
+  .btn {
+    margin-top: 15px;
+    padding: 12px 20px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .theme-toggle {
+    background: none;
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+  .theme-toggle:hover {
+    background: var(--accent-color);
+    color: white;
+  }
+
+  /* small file-name wrap */
+  .filename {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 76%;
+  }
+  .size {
+    opacity: 0.7;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+
+  /* hint text when empty */
+  .hint {
+    text-align: center;
+    padding: 18px;
+    color: rgba(255,255,255,0.6);
+  }
+  body.light .hint { color: rgba(0,0,0,0.6); }
+</style>
+</head>
+<body>
+  <div class="top-bar">
+    <h1>Merge Text Files</h1>
+    <button class="theme-toggle" id="themeBtn">☀ Day Mode</button>
+  </div>
+
+  <label for="fileInput" class="file-label" title="Click to choose text files">
+    📂 Choose Files
+    <input type="file" id="fileInput" multiple accept=".txt,text/plain" />
+  </label>
+
+  <ul id="fileList" aria-live="polite">
+    <li class="hint">No files chosen — click "Choose Files" to add .txt files.</li>
+  </ul>
+
+  <button class="btn" id="mergeBtn">Merge & Download</button>
+
+<script>
+  const fileInput = document.getElementById("fileInput");
+  const fileList = document.getElementById("fileList");
+  const themeBtn = document.getElementById("themeBtn");
+  const mergeBtn = document.getElementById("mergeBtn");
+  let filesArray = [];
+
+  // Default night mode
+  document.body.classList.remove("light");
+
+  themeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+    themeBtn.textContent = document.body.classList.contains("light") ? "🌙 Night Mode" : "☀ Day Mode";
+  });
+
+  fileInput.addEventListener("change", (e) => {
+    // New selection replaces previous list
+    filesArray = Array.from(e.target.files);
+    renderFileList();
+  });
+
+  function renderFileList() {
+    fileList.innerHTML = "";
+    if (!filesArray.length) {
+      const hint = document.createElement("li");
+      hint.className = "hint";
+      hint.textContent = "No files chosen — click \"Choose Files\" to add .txt files.";
+      fileList.appendChild(hint);
+      return;
+    }
+
+    filesArray.forEach((file, index) => {
+      const li = document.createElement("li");
+      li.draggable = true;
+
+      // store direct reference to the File object (fixes ordering bug)
+      li._file = file;
+
+      // visible filename (ellipsized) and size
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "filename";
+      nameSpan.textContent = file.name;
+
+      const sizeSpan = document.createElement("span");
+      sizeSpan.className = "size";
+      sizeSpan.textContent = formatBytes(file.size);
+
+      li.appendChild(nameSpan);
+      li.appendChild(sizeSpan);
+
+      fileList.appendChild(li);
+    });
+
+    addDragAndDrop();
+  }
+
+  function addDragAndDrop() {
+    // attach drag listeners to current list items
+    let draggedItem = null;
+
+    // Use event delegation instead of re-binding many times? We'll bind per-li for simplicity
+    fileList.querySelectorAll("li").forEach(item => {
+      // skip hint
+      if (item.classList.contains("hint")) return;
+
+      item.addEventListener("dragstart", (e) => {
+        draggedItem = item;
+        item.classList.add("dragging");
+        // set dataTransfer for Firefox compatibility
+        try { e.dataTransfer.setData('text/plain', 'drag'); } catch (_) {}
+      });
+
+      item.addEventListener("dragend", () => {
+        if (draggedItem) draggedItem.classList.remove("dragging");
+        draggedItem = null;
+      });
+
+      item.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        const draggingOverItem = e.target.closest("li");
+        if (!draggingOverItem || draggingOverItem === draggedItem || draggingOverItem.classList.contains("hint")) return;
+
+        const allItems = Array.from(fileList.querySelectorAll("li")).filter(i => !i.classList.contains("hint"));
+        const draggedIndex = allItems.indexOf(draggedItem);
+        const targetIndex = allItems.indexOf(draggingOverItem);
+
+        if (draggedIndex < targetIndex) {
+          fileList.insertBefore(draggedItem, draggingOverItem.nextSibling);
+        } else {
+          fileList.insertBefore(draggedItem, draggingOverItem);
+        }
+        // rebuild filesArray from DOM order (uses li._file)
+        updateFileOrder();
+      });
+
+      // also allow clicking an item to select it visually (optional)
+      item.addEventListener("click", () => {
+        // simple visual flash
+        item.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.02)' }, { transform: 'scale(1)' }], { duration: 160 });
+      });
+    });
+  }
+
+  function updateFileOrder() {
+    const newOrder = [];
+    fileList.querySelectorAll("li").forEach(li => {
+      if (li.classList.contains("hint")) return;
+      if (li._file) {
+        newOrder.push(li._file);
+      } else {
+        // fallback: try matching by name to existing filesArray (rare)
+        const name = li.textContent.trim();
+        const found = filesArray.find(f => name.startsWith(f.name));
+        if (found) newOrder.push(found);
+      }
+    });
+    filesArray = newOrder;
+
+    // update dataset.index for potential debugging / future use
+    fileList.querySelectorAll("li").forEach((li, i) => {
+      if (!li.classList.contains("hint")) li.dataset.index = i;
+    });
+  }
+
+  mergeBtn.addEventListener("click", async () => {
+    if (!filesArray.length) {
+      alert("Please upload text files first.");
+      return;
+    }
+
+    // Merge in current order of filesArray (which mirrors the visible order)
+    let mergedText = "";
+    for (const file of filesArray) {
+      // preserve order by awaiting sequentially
+      const text = await file.text();
+      mergedText += text + "\n";
+    }
+
+    const blob = new Blob([mergedText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "merged.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // small helper to format bytes
+  function formatBytes(bytes) {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B","KB","MB","GB","TB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  }
+</script>
+</body>
+</html>
+<!--
+  This HTML file provides a simple interface to merge multiple text files.
+  It supports drag-and-drop reordering, light/dark mode toggle, and file size display.
+  The merged content is downloaded as a single text file.
+-->
