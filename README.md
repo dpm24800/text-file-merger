@@ -48,8 +48,12 @@ MIT License © Dipak Pulami Magar
 
 ## 🖼️ Screenshot
 
-![](images/screenshot-1.png)
-![](images/screenshot-2.png)
+![](images/screenshot-1.png)  
+...
+![](images/screenshot-2.png)  
+...
+![](images/screenshot-2.png)  
+
 
 ---
 
@@ -59,5 +63,6 @@ MIT License © Dipak Pulami Magar
 
    ```bash
    git clone https://github.com/yourusername/merge-text-files.git
+
 
 
