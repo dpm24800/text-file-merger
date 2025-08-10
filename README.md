@@ -1,4 +1,4 @@
-# 🔥 Merge Text Files Web App 🔥
+# 🔥 Text Files Merger – Web App 🔥
 
 A sleek, sexy, single-page web app to **upload, reorder, and merge multiple text files** — all running 100% in your browser. No backend, no fuss! 🚀✨
 
@@ -59,4 +59,5 @@ MIT License © Dipak Pulami Magar
 
    ```bash
    git clone https://github.com/yourusername/merge-text-files.git
+
 
